@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="MyHub" />
+  <meta name="theme-color" content="#0f0f0f" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <title>MyHub</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface2: #242424;
+      --border: rgba(255,255,255,0.08);
+      --border2: rgba(255,255,255,0.14);
+      --text: #f0f0f0;
+      --text2: #888;
+      --text3: #555;
+      --accent: #c8f060;
+      --accent-dim: rgba(200,240,96,0.12);
+      --red: #ff6b6b;
+      --red-dim: rgba(255,107,107,0.12);
+      --amber: #ffb347;
+      --amber-dim: rgba(255,179,71,0.12);
+      --green: #6bffb8;
+      --green-dim: rgba(107,255,184,0.12);
+      --blue: #60b8ff;
+      --blue-dim: rgba(96,184,255,0.12);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --mono: 'DM Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--sans); }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .header-title {
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+    }
+    .header-date {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text3);
+      letter-spacing: 0.05em;
+    }
+
+    /* Tab bar */
+    .tabs {
+      display: flex;
+      padding: 8px 16px;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+    .tab {
+      flex: 1;
+      padding: 8px 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text3);
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-transform: uppercase;
+    }
+    .tab.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Scroll area */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 16px;
+    }
+    .section { display: none; }
+    .section.active { display: block; }
+
+    /* Add form */
+    .add-form {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .form-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+      margin-bottom: 8px;
+    }
+    .form-row:last-child { margin-bottom: 0; }
+    input[type="text"], textarea, select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus {
+      border-color: var(--border2);
+    }
+    select { cursor: pointer; }
+    select option { background: var(--surface2); }
+    textarea { resize: none; min-height: 80px; line-height: 1.5; }
+    .btn {
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #0f0f0f;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 10px 16px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+      letter-spacing: 0.04em;
+    }
+    .btn:active { opacity: 0.8; }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      letter-spacing: 0.04em;
+    }
+    .btn-ghost:active { background: var(--surface2); }
+
+    /* Priority select */
+    .priority-select {
+      width: 110px;
+      flex-shrink: 0;
+    }
+
+    /* Group labels */
+    .group-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      color: var(--text3);
+      text-transform: uppercase;
+      margin: 16px 0 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .group-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .group-label.lhigh { color: var(--red); }
+    .group-label.lmed { color: var(--amber); }
+    .group-label.llow { color: var(--green); }
+
+    /* Task item */
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+      transition: opacity 0.2s;
+    }
+    .task-item.done { opacity: 0.4; }
+    .check-wrap {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border: 1.5px solid var(--border2);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+      transition: all 0.15s;
+    }
+    .task-item.done .check-wrap {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .check-wrap svg { display: none; }
+    .task-item.done .check-wrap svg { display: block; }
+    .task-text {
+      flex: 1;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text);
+    }
+    .task-item.done .task-text { text-decoration: line-through; color: var(--text3); }
+    .del-btn {
+      background: none;
+      border: none;
+      color: var(--text3);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 0 2px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .del-btn:active { color: var(--red); }
+
+    /* Note item */
+    .note-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .note-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+    .note-title {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .note-body {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .task-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 3px 8px;
+      background: var(--blue-dim);
+      color: var(--blue);
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Feed item */
+    .feed-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+    .feed-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .feed-name {
+      font-size: 14px;
+      font-weight: 500;
+      flex: 1;
+      color: var(--text);
+    }
+    .feed-url-text {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text3);
+      margin-bottom: 10px;
+    }
+    .feed-url-text a { color: var(--blue); text-decoration: none; }
+    .headline {
+      font-size: 13px;
+      color: var(--text2);
+      padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.5;
+      display: flex;
+      gap: 8px;
+    }
+    .headline:last-child { border-bottom: none; }
+    .headline::before { content: "→"; color: var(--text3); flex-shrink: 0; font-family: var(--mono); }
+    .feed-loading {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text3);
+      padding: 8px 0;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+    /* Empty state */
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text3);
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Scrollbar */
+    .content::-webkit-scrollbar { width: 3px; }
+    .content::-webkit-scrollbar-track { background: transparent; }
+    .content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <span class="header-title">MyHub</span>
+    <span class="header-date" id="header-date"></span>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('tasks',this)">Tasks</button>
+    <button class="tab" onclick="showTab('notes',this)">Notes</button>
+    <button class="tab" onclick="showTab('feeds',this)">Links</button>
+  </div>
+  <div class="content">
+
+    <!-- TASKS -->
+    <div id="tasks" class="section active">
+      <div class="add-form">
+        <div class="form-row">
+          <input type="text" id="task-input" placeholder="New task..." />
+          <select id="task-pri" class="priority-select">
+            <option value="high">High</option>
+            <option value="med" selected>Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <button class="btn" style="width:100%;" onclick="addTask()">ADD TASK</button>
+        </div>
+      </div>
+      <div class="group-label lhigh">High</div>
+      <div id="list-high"></div>
+      <div class="group-label lmed">Medium</div>
+      <div id="list-med"></div>
+      <div class="group-label llow">Low</div>
+      <div id="list-low"></div>
+    </div>
+
+    <!-- NOTES -->
+    <div id="notes" class="section">
+      <div class="add-form">
+        <div class="form-row">
+          <input type="text" id="note-title-in" placeholder="Note title..." />
+        </div>
+        <div class="form-row">
+          <textarea id="note-body-in" placeholder="Write your note..."></textarea>
+        </div>
+        <div class="form-row">
+          <select id="note-task-link" style="flex:1;">
+            <option value="">Link to a task (optional)</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <button class="btn" style="width:100%;" onclick="addNote()">SAVE NOTE</button>
+        </div>
+      </div>
+      <div id="notes-list"></div>
+    </div>
+
+    <!-- FEEDS -->
+    <div id="feeds" class="section">
+      <div class="add-form">
+        <div class="form-row">
+          <input type="text" id="feed-name-in" placeholder="Site name (e.g. BBC News)" />
+        </div>
+        <div class="form-row">
+          <input type="text" id="feed-url-in" placeholder="Website URL" />
+        </div>
+        <div class="form-row">
+          <button class="btn" style="width:100%;" onclick="addFeed()">ADD SITE</button>
+        </div>
+      </div>
+      <div id="feeds-list"></div>
+    </div>
+
+  </div>
+</div>
+<script>
+const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
+
+let data = JSON.parse(localStorage.getItem('myhub') || '{"tasks":{"high":[],"med":[],"low":[]},"notes":[],"feeds":[]}');
+let idCount = parseInt(localStorage.getItem('myhub_id') || '0');
+
+function save() {
+  localStorage.setItem('myhub', JSON.stringify(data));
+  localStorage.setItem('myhub_id', idCount);
+}
+
+function uid() { return ++idCount; }
+
+// Header date
+function updateDate() {
+  const d = new Date();
+  document.getElementById('header-date').textContent =
+    d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'}).toUpperCase();
+}
+updateDate();
+
+// Tabs
+function showTab(name, el) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  el.classList.add('active');
+  if (name === 'notes') refreshTaskDropdown();
+}
+
+// ── TASKS ──
+function addTask() {
+  const txt = document.getElementById('task-input').value.trim();
+  const pri = document.getElementById('task-pri').value;
+  if (!txt) return;
+  data.tasks[pri].unshift({ id: uid(), text: txt, done: false });
+  document.getElementById('task-input').value = '';
+  save(); renderTasks();
+}
+
+function toggleTask(pri, id) {
+  const t = data.tasks[pri].find(x => x.id === id);
+  if (t) { t.done = !t.done; save(); renderTasks(); }
+}
+
+function deleteTask(pri, id) {
+  data.tasks[pri] = data.tasks[pri].filter(x => x.id !== id);
+  save(); renderTasks();
+}
+
+function renderTasks() {
+  ['high','med','low'].forEach(pri => {
+    const el = document.getElementById('list-' + pri);
+    if (!data.tasks[pri].length) {
+      el.innerHTML = '<div class="empty">no tasks</div>'; return;
+    }
+    el.innerHTML = data.tasks[pri].map(t => `
+      <div class="task-item ${t.done ? 'done' : ''}">
+        <div class="check-wrap" onclick="toggleTask('${pri}',${t.id})">
+          <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+            <path d="M1 4L4 7L9 1" stroke="#0f0f0f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="task-text">${escHtml(t.text)}</span>
+        <button class="del-btn" onclick="deleteTask('${pri}',${t.id})">×</button>
+      </div>`).join('');
+  });
+}
+
+// ── NOTES ──
+function refreshTaskDropdown() {
+  const all = [...data.tasks.high, ...data.tasks.med, ...data.tasks.low];
+  const sel = document.getElementById('note-task-link');
+  sel.innerHTML = '<option value="">Link to a task (optional)</option>' +
+    all.map(t => `<option value="${t.id}">${escHtml(t.text)}</option>`).join('');
+}
+
+function addNote() {
+  const title = document.getElementById('note-title-in').value.trim();
+  const body = document.getElementById('note-body-in').value.trim();
+  if (!title && !body) return;
+  const taskId = document.getElementById('note-task-link').value;
+  const all = [...data.tasks.high, ...data.tasks.med, ...data.tasks.low];
+  const linked = taskId ? all.find(t => t.id == taskId) : null;
+  data.notes.unshift({ id: uid(), title: title || 'Untitled', body, linkedTask: linked ? linked.text : null });
+  document.getElementById('note-title-in').value = '';
+  document.getElementById('note-body-in').value = '';
+  document.getElementById('note-task-link').value = '';
+  save(); renderNotes();
+}
+
+function deleteNote(id) {
+  data.notes = data.notes.filter(n => n.id !== id);
+  save(); renderNotes();
+}
+
+function renderNotes() {
+  const el = document.getElementById('notes-list');
+  if (!data.notes.length) { el.innerHTML = '<div class="empty">no notes</div>'; return; }
+  el.innerHTML = data.notes.map(n => `
+    <div class="note-item">
+      <div class="note-header">
+        <span class="note-title">${escHtml(n.title)}</span>
+        ${n.linkedTask ? `<span class="task-tag">${escHtml(n.linkedTask)}</span>` : ''}
+        <button class="del-btn" onclick="deleteNote(${n.id})">×</button>
+      </div>
+      ${n.body ? `<div class="note-body">${escHtml(n.body)}</div>` : ''}
+    </div>`).join('');
+}
+
+// ── FEEDS ──
+function addFeed() {
+  const name = document.getElementById('feed-name-in').value.trim();
+  const url = document.getElementById('feed-url-in').value.trim();
+  if (!name || !url) return;
+  const id = uid();
+  data.feeds.unshift({ id, name, url, headlines: [], loading: true, lastFetched: null });
+  document.getElementById('feed-name-in').value = '';
+  document.getElementById('feed-url-in').value = '';
+  save(); renderFeeds();
+  fetchHeadlines(id);
+}
+
+async function fetchHeadlines(id) {
+  const feed = data.feeds.find(f => f.id === id);
+  if (!feed) return;
+  feed.loading = true; renderFeeds();
+  try {
+    const resp = await fetch(ANTHROPIC_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: `Search for the 5 most recent news headlines from "${feed.name}". Return ONLY a JSON array of strings with just the headline text. No markdown, no backticks, no explanation. Example: ["Headline 1","Headline 2"]` }]
+      })
+    });
+    const json = await resp.json();
+    const text = (json.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    feed.headlines = JSON.parse(clean).slice(0, 5);
+    feed.loading = false;
+    feed.lastFetched = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  } catch(e) {
+    feed.loading = false;
+    feed.headlines = [];
+    feed.error = true;
+  }
+  save(); renderFeeds();
+}
+
+function deleteFeed(id) {
+  data.feeds = data.feeds.filter(f => f.id !== id);
+  save(); renderFeeds();
+}
+
+function renderFeeds() {
+  const el = document.getElementById('feeds-list');
+  if (!data.feeds.length) { el.innerHTML = '<div class="empty">no sites added</div>'; return; }
+  el.innerHTML = data.feeds.map(f => `
+    <div class="feed-item">
+      <div class="feed-top">
+        <span class="feed-name">${escHtml(f.name)}</span>
+        <button class="btn-ghost" onclick="fetchHeadlines(${f.id})">refresh</button>
+        <button class="del-btn" onclick="deleteFeed(${f.id})">×</button>
+      </div>
+      <div class="feed-url-text"><a href="${escHtml(f.url)}" target="_blank">${escHtml(f.url)}</a></div>
+      ${f.loading
+        ? '<div class="feed-loading">fetching headlines...</div>'
+        : f.error
+          ? '<div class="feed-loading">could not load headlines</div>'
+          : f.headlines.map(h => `<div class="headline">${escHtml(h)}</div>`).join('') || '<div class="feed-loading">no headlines found</div>'
+      }
+      ${f.lastFetched ? `<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:8px;">updated ${f.lastFetched}</div>` : ''}
+    </div>`).join('');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Init
+renderTasks();
+renderNotes();
+renderFeeds();
+
+// Service worker registration
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+</body>
+</html>
