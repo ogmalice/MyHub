@@ -685,11 +685,7 @@ renderFeeds();
     canvas.width = canvas.width; // fast clear
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Clip to right third of the page
     ctx.save();
-    ctx.beginPath();
-    ctx.rect(Math.floor(canvas.width * 2 / 3), 0, canvas.width, canvas.height);
-    ctx.clip();
 
     // Dim base grid
     hexCenters.forEach(h => {
