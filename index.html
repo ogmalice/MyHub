@@ -204,6 +204,17 @@
     .group-label.lmed { color: var(--amber); }
     .group-label.llow { color: var(--green); }
 
+    /* Priority group wrapper */
+    .priority-group {
+      background: rgba(255,255,255,0.03);
+      border-radius: var(--radius);
+      padding: 4px 8px 8px;
+      margin-bottom: 8px;
+    }
+    .priority-group .group-label {
+      margin: 8px 0;
+    }
+
     /* Task item */
     .task-item {
       display: flex;
@@ -388,12 +399,18 @@
           <button class="btn" style="width:100%;" onclick="addTask()">ADD TASK</button>
         </div>
       </div>
-      <div class="group-label lhigh">High</div>
-      <div id="list-high"></div>
-      <div class="group-label lmed">Medium</div>
-      <div id="list-med"></div>
-      <div class="group-label llow">Low</div>
-      <div id="list-low"></div>
+      <div class="priority-group">
+        <div class="group-label lhigh">High</div>
+        <div id="list-high"></div>
+      </div>
+      <div class="priority-group">
+        <div class="group-label lmed">Medium</div>
+        <div id="list-med"></div>
+      </div>
+      <div class="priority-group">
+        <div class="group-label llow">Low</div>
+        <div id="list-low"></div>
+      </div>
     </div>
 
     <!-- NOTES -->
