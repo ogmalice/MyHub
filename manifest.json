@@ -1,6 +1,6 @@
 {
-  "name": "MyHub",
-  "short_name": "MyHub",
+  "name": "HiveMind",
+  "short_name": "HiveMind",
   "description": "Personal productivity hub with tasks, notes, and live feeds",
   "start_url": "/MyHub/",
   "scope": "/MyHub/",
