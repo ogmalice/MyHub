@@ -353,9 +353,14 @@
     .content::-webkit-scrollbar { width: 3px; }
     .content::-webkit-scrollbar-track { background: transparent; }
     .content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+    /* Hex background */
+    #hex-bg { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.045; }
+    #app { position: relative; z-index: 1; }
   </style>
 </head>
 <body>
+<canvas id="hex-bg"></canvas>
 <div id="app">
   <div class="header">
     <span class="header-title">Welcome to the HiveMind</span>
@@ -616,6 +621,41 @@ function escHtml(s) {
 renderTasks();
 renderNotes();
 renderFeeds();
+
+// Hex background
+(function() {
+  const canvas = document.getElementById('hex-bg');
+  const ctx = canvas.getContext('2d');
+  function draw() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = '#c8f060';
+    ctx.lineWidth = 0.6;
+    const r = 28;
+    const colW = r * Math.sqrt(3);
+    const rowH = r * 1.5;
+    const cols = Math.ceil(canvas.width / colW) + 2;
+    const rows = Math.ceil(canvas.height / rowH) + 2;
+    for (let row = -1; row < rows; row++) {
+      for (let col = -1; col < cols; col++) {
+        const cx = col * colW + (row % 2 !== 0 ? colW / 2 : 0);
+        const cy = row * rowH;
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const a = Math.PI / 180 * (60 * i - 30);
+          const x = cx + r * Math.cos(a);
+          const y = cy + r * Math.sin(a);
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+    }
+  }
+  draw();
+  window.addEventListener('resize', draw);
+})();
 
 // Service worker registration
 if ('serviceWorker' in navigator) {
