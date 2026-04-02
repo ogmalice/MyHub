@@ -709,7 +709,7 @@ function addNote() {
   const taskId = document.getElementById('note-task-link').value;
   const all = [...data.tasks.high, ...data.tasks.med, ...data.tasks.low];
   const linked = taskId ? all.find(t => t.id == taskId) : null;
-  data.notes.unshift({ id: uid(), title: title || 'Untitled', body, linkedTask: linked ? linked.text : null });
+  data.notes.unshift({ id: uid(), title: title || 'Untitled', body, linkedTask: linked ? linked.text : null, createdAt: new Date().toDateString() });
   document.getElementById('note-title-in').value = '';
   document.getElementById('note-body-in').value = '';
   document.getElementById('note-task-link').value = '';
@@ -806,11 +806,20 @@ function renderFeeds() {
 // ── DAILY BRIEF ──
 function openBrief() {
   const today = new Date().toDateString();
+  const yDate = new Date(); yDate.setDate(yDate.getDate() - 1);
+  const yesterday = yDate.toDateString();
+
   const todayTasks = [
     ...data.tasks.high.filter(t => t.createdAt === today).map(t => ({ ...t, pri: 'high' })),
     ...data.tasks.med.filter(t => t.createdAt === today).map(t => ({ ...t, pri: 'med' })),
     ...data.tasks.low.filter(t => t.createdAt === today).map(t => ({ ...t, pri: 'low' }))
   ];
+  const yTasks = [
+    ...data.tasks.high.filter(t => t.createdAt === yesterday).map(t => ({ ...t, pri: 'high' })),
+    ...data.tasks.med.filter(t => t.createdAt === yesterday).map(t => ({ ...t, pri: 'med' })),
+    ...data.tasks.low.filter(t => t.createdAt === yesterday).map(t => ({ ...t, pri: 'low' }))
+  ];
+  const yNotes = data.notes.filter(n => n.createdAt === yesterday);
 
   const body = document.getElementById('brief-modal-body');
   const briefText = data.brief || '';
@@ -824,12 +833,36 @@ function openBrief() {
         </div>`).join('')
     : '<div class="empty" style="padding:16px 0 8px;">no tasks added today</div>';
 
+  const yTaskRows = yTasks.length
+    ? yTasks.map(t => `
+        <div class="brief-task-row">
+          <span class="brief-task-pri ${t.pri}">${t.pri}</span>
+          <span style="flex:1">${escHtml(t.text)}</span>
+          ${t.done ? '<span class="brief-done-badge">done</span>' : ''}
+        </div>`).join('')
+    : '<div class="empty" style="padding:8px 0;">no tasks from yesterday</div>';
+
+  const yNoteRows = yNotes.length
+    ? yNotes.map(n => `
+        <div class="note-item" style="margin-bottom:8px;">
+          <div class="note-header">
+            <span class="note-title">${escHtml(n.title)}</span>
+            ${n.linkedTask ? `<span class="task-tag">${escHtml(n.linkedTask)}</span>` : ''}
+          </div>
+          ${n.body ? `<div class="note-body">${escHtml(n.body)}</div>` : ''}
+        </div>`).join('')
+    : '<div class="empty" style="padding:8px 0;">no notes from yesterday</div>';
+
   body.innerHTML = `
     <div class="modal-section-label">My Brief</div>
     <textarea class="brief-textarea" id="brief-text-input" placeholder="Add notes, reminders, or anything relevant for today...">${escHtml(briefText)}</textarea>
     <button class="btn" style="width:100%;margin-bottom:20px;" onclick="saveBrief()">SAVE BRIEF</button>
     <div class="modal-section-label">Tasks Added Today</div>
     ${taskRows}
+    <div class="modal-section-label" style="margin-top:20px;">Yesterday's Tasks</div>
+    ${yTaskRows}
+    <div class="modal-section-label" style="margin-top:20px;">Yesterday's Notes</div>
+    ${yNoteRows}
   `;
 
   document.getElementById('brief-modal').classList.add('open');
