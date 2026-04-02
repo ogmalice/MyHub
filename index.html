@@ -355,7 +355,7 @@
     .content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
 
     /* Hex background */
-    #hex-bg { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 1; }
+    #hex-bg { display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 1; }
     #app { position: relative; z-index: 1; }
   </style>
 </head>
@@ -652,7 +652,7 @@ renderFeeds();
     const cols = Math.ceil(canvas.width / colW) + 2;
     const rows = Math.ceil(canvas.height / rowH) + 2;
     for (let row = -1; row < rows; row++) {
-      for (let col = -1; col < cols; col++) {
+      for (let col = -2; col < cols; col++) {
         hexCenters.push({
           cx: col * colW + (row % 2 !== 0 ? colW / 2 : 0),
           cy: row * rowH,
