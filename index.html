@@ -626,7 +626,8 @@ renderFeeds();
 (function() {
   const canvas = document.getElementById('hex-bg');
   const ctx = canvas.getContext('2d');
-  const ACCENT = [200, 240, 96]; // #c8f060
+  const ACCENT = [100, 140, 255]; // blue
+  const ACCENT2 = [160, 60, 255]; // purple
   const r = 34;
   let hexCenters = [];
   let pulses = []; // { cx, cy, t, dur, maxR }
@@ -684,9 +685,15 @@ renderFeeds();
     canvas.width = canvas.width; // fast clear
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // Clip to right third of the page
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(Math.floor(canvas.width * 2 / 3), 0, canvas.width, canvas.height);
+    ctx.clip();
+
     // Dim base grid
     hexCenters.forEach(h => {
-      const brightness = 0.028 + 0.012 * Math.sin(h.phase + ts * 0.001 * h.speed);
+      const brightness = 0.08 + 0.04 * Math.sin(h.phase + ts * 0.001 * h.speed);
       ctx.strokeStyle = `rgba(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]},${brightness})`;
       ctx.lineWidth = 0.5;
       hexPath(h.cx, h.cy, r - 1);
@@ -701,7 +708,7 @@ renderFeeds();
         const dx = b.cx - a.cx, dy = b.cy - a.cy;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist > r * 6) continue;
-        const alpha = 0.04 + 0.06 * (1 - dist / (r * 6));
+        const alpha = 0.12 + 0.18 * (1 - dist / (r * 6));
         const pulse = 0.5 + 0.5 * Math.sin(ts * 0.0012 + a.phase - b.phase);
         ctx.strokeStyle = `rgba(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]},${alpha * (0.6 + 0.4 * pulse)})`;
         ctx.beginPath();
@@ -717,11 +724,11 @@ renderFeeds();
 
       // filled hex
       hexPath(n.cx, n.cy, r - 1);
-      ctx.fillStyle = `rgba(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]},${0.04 * glow})`;
+      ctx.fillStyle = `rgba(${ACCENT2[0]},${ACCENT2[1]},${ACCENT2[2]},${0.14 * glow})`;
       ctx.fill();
 
       // bright border
-      ctx.strokeStyle = `rgba(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]},${0.28 * glow})`;
+      ctx.strokeStyle = `rgba(${ACCENT2[0]},${ACCENT2[1]},${ACCENT2[2]},${0.7 * glow})`;
       ctx.lineWidth = 1;
       hexPath(n.cx, n.cy, r - 1);
       ctx.stroke();
@@ -729,7 +736,7 @@ renderFeeds();
       // centre dot
       ctx.beginPath();
       ctx.arc(n.cx, n.cy, 2, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]},${0.5 * glow})`;
+      ctx.fillStyle = `rgba(${ACCENT2[0]},${ACCENT2[1]},${ACCENT2[2]},${Math.min(1, 1.0 * glow)})`;
       ctx.fill();
     });
 
@@ -739,17 +746,19 @@ renderFeeds();
       const prog = p.t / p.dur;
       if (prog >= 1) return false;
       const radius = p.maxR * prog;
-      const alpha = 0.18 * (1 - prog) * (1 - prog);
+      const alpha = 0.5 * (1 - prog) * (1 - prog);
       const grad = ctx.createRadialGradient(p.cx, p.cy, 0, p.cx, p.cy, radius);
       grad.addColorStop(0, `rgba(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]},0)`);
       grad.addColorStop(0.75, `rgba(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]},${alpha})`);
-      grad.addColorStop(1, `rgba(${ACCENT[0]},${ACCENT[1]},${ACCENT[2]},0)`);
+      grad.addColorStop(1, `rgba(${ACCENT2[0]},${ACCENT2[1]},${ACCENT2[2]},0)`);
       ctx.beginPath();
       ctx.arc(p.cx, p.cy, radius, 0, Math.PI * 2);
       ctx.fillStyle = grad;
       ctx.fill();
       return true;
     });
+
+    ctx.restore();
 
     raf = requestAnimationFrame(draw);
   }
