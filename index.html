@@ -375,7 +375,10 @@
 <div id="app">
   <div class="header">
     <span class="header-title">Welcome to the HiveMind</span>
-    <span class="header-date" id="header-date"></span>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span class="header-date" id="header-date"></span>
+      <button class="btn-ghost" onclick="clearAll()" style="font-size:10px;padding:4px 8px;color:var(--text3);border-color:var(--border);">CLEAR</button>
+    </div>
   </div>
   <div class="tabs">
     <button class="tab active" onclick="showTab('tasks',this)">Tasks</button>
@@ -464,6 +467,14 @@ function save() {
 }
 
 function uid() { return ++idCount; }
+
+function clearAll() {
+  if (!confirm('Clear all tasks, notes, and feeds?')) return;
+  data = { tasks: { high: [], med: [], low: [] }, notes: [], feeds: [] };
+  idCount = 0;
+  save();
+  renderTasks(); renderNotes(); renderFeeds();
+}
 
 // Header date
 function updateDate() {
