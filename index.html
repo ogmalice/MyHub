@@ -302,6 +302,17 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
+    .task-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .item-ts {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.25);
+    }
 
     /* Feed item */
     .feed-item {
@@ -630,6 +641,14 @@ function save() {
 
 function uid() { return ++idCount; }
 
+function fmtTs(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  if (isNaN(d)) return ts;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' ' +
+    d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
 function clearAll() {
   if (!confirm('Clear all tasks, notes, and feeds?')) return;
   data = { tasks: { high: [], med: [], low: [] }, notes: [], feeds: [] };
@@ -660,7 +679,7 @@ function addTask() {
   const txt = document.getElementById('task-input').value.trim();
   const pri = document.getElementById('task-pri').value;
   if (!txt) return;
-  data.tasks[pri].unshift({ id: uid(), text: txt, done: false, createdAt: new Date().toDateString() });
+  data.tasks[pri].unshift({ id: uid(), text: txt, done: false, createdAt: new Date().toISOString() });
   document.getElementById('task-input').value = '';
   save(); renderTasks();
 }
@@ -688,7 +707,10 @@ function renderTasks() {
             <path d="M1 4L4 7L9 1" stroke="#0f0f0f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
-        <span class="task-text">${escHtml(t.text)}</span>
+        <div class="task-main">
+          <span class="task-text">${escHtml(t.text)}</span>
+          ${t.createdAt ? `<span class="item-ts">${fmtTs(t.createdAt)}</span>` : ''}
+        </div>
         <button class="del-btn" onclick="deleteTask('${pri}',${t.id})">×</button>
       </div>`).join('');
   });
@@ -709,7 +731,7 @@ function addNote() {
   const taskId = document.getElementById('note-task-link').value;
   const all = [...data.tasks.high, ...data.tasks.med, ...data.tasks.low];
   const linked = taskId ? all.find(t => t.id == taskId) : null;
-  data.notes.unshift({ id: uid(), title: title || 'Untitled', body, linkedTask: linked ? linked.text : null, createdAt: new Date().toDateString() });
+  data.notes.unshift({ id: uid(), title: title || 'Untitled', body, linkedTask: linked ? linked.text : null, createdAt: new Date().toISOString() });
   document.getElementById('note-title-in').value = '';
   document.getElementById('note-body-in').value = '';
   document.getElementById('note-task-link').value = '';
@@ -731,6 +753,7 @@ function renderNotes() {
         ${n.linkedTask ? `<span class="task-tag">${escHtml(n.linkedTask)}</span>` : ''}
         <button class="del-btn" onclick="deleteNote(${n.id})">×</button>
       </div>
+      ${n.createdAt ? `<span class="item-ts">${fmtTs(n.createdAt)}</span>` : ''}
       ${n.body ? `<div class="note-body">${escHtml(n.body)}</div>` : ''}
     </div>`).join('');
 }
